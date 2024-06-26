@@ -155,7 +155,6 @@ export CDPATH=".:$HOME/repos/"
 export PATH="$PATH:/opt/freescale-4.5.1-2010.09/bin"
 export PATH="$PATH:/opt/gcc-linaro-4.9.4-2017.01/bin"
 export PATH="$PATH:/opt/gcc-linaro-7.5.0-2019.12/bin"
-export $GITHUB_USERNAME="klsbecker"
 
 # User aliases
 alias cp='cp -v'
@@ -170,6 +169,7 @@ alias rebuild-kernel-arm64='rm images/*.itb; make kernel-rebuild && make dtb_for
 alias please='sudo'
 alias ag='ag --noheading'
 alias raupp='ssh kls@APED52'
+alias cm='chezmoi'
 
 # User functions
 root() {
@@ -183,9 +183,3 @@ root() {
 	ssh root@${ip} 
 	echo
 }
-
-
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

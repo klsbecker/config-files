@@ -1,0 +1,26 @@
+" Configuração básica do Vim
+
+" Definir número de linha
+set number
+
+" Ativar a detecção de sintaxe
+syntax on
+
+" Usar espaços em vez de tabulações
+set expandtab
+
+" Definir o número de espaços que uma tabulação representa
+set tabstop=4
+set shiftwidth=4
+
+" Ativar o realce da busca
+set hlsearch
+
+" Ignorar maiúsculas e minúsculas na busca
+set ignorecase
+set smartcase
+
+" Configurar histórico de comandos e buscas
+set history=1000
+
+set mouse=a
