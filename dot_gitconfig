@@ -1,0 +1,9 @@
+[oh-my-bash]
+	hide-status = 1
+	hide-info = 1
+	hide-dirty = 1
+[user]
+	email = klaus.becker@altus.com.br
+	name = Klaus Becker
+[diff]
+	submodule = log
