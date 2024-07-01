@@ -170,6 +170,8 @@ alias please='sudo'
 alias ag='ag --noheading'
 alias raupp='ssh kls@APED52'
 alias cm='chezmoi'
+alias glp='command git log --graph -p'
+alias glpo='command git log --graph -p --oneline'
 
 # User functions
 root() {
