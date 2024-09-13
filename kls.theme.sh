@@ -6,17 +6,19 @@ SCM_THEME_PROMPT_PREFIX="${_omb_prompt_olive}("
 SCM_THEME_PROMPT_SUFFIX=")${_omb_prompt_normal}"
 
 function scm_prompt {
-    if git rev-parse --is-inside-git-dir -q > /dev/null 2>&1; then
-        echo "${_omb_prompt_red}$(git rev-parse --abbrev-ref HEAD)${_omb_prompt_normal} "
-    else
-        return
+    CHAR=$(scm_char)
+    if [ $CHAR = $SCM_NONE_CHAR ]
+        then
+            return
+        else
+            echo "$(scm_prompt_info) "
     fi
 }
 
 function _omb_theme_PROMPT_COMMAND {
     ps_host="${_omb_prompt_lime}\h${_omb_prompt_normal}";
     ps_user_mark="${_omb_prompt_lime}\$${_omb_prompt_normal}";
-    ps_root_mark="${_omb_prompt_red}\§"
+    ps_root_mark="${_omb_prompt_red}§"
     ps_path="${_omb_prompt_green}\w";
 
     # make it work
