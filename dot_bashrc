@@ -106,7 +106,6 @@ aliases=(
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
 	git
-	bashmarks	
 )
 
 # Which plugins would you like to conditionally load? (plugins can be found in ~/.oh-my-bash/plugins/*)
@@ -170,10 +169,10 @@ alias make-kernel-arm64='rm images/*.itb; make kernel && make dtb_for_itb && mak
 alias rebuild-kernel-arm64='rm images/*.itb; make kernel-rebuild && make dtb_for_itb && make generate_itb && cp images/*.itb /Shared/TFTP'
 alias please='sudo'
 alias ag='ag --noheading'
-alias raupp='ssh kls@APED52'
 alias cm='chezmoi'
 alias glp='command git log --graph -p'
 alias glpo='command git log --graph -p --oneline'
+alias sysadmin='ssh -i ~/.ssh/id_vms -l sysadmin'
 
 # User functions
 root() {
