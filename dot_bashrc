@@ -165,25 +165,107 @@ alias edit-bashrc='vim ~/.bashrc'
 alias gs='git status'
 alias files='(explorer.exe . &) > /dev/null 2>&1'
 alias get-time='/usr/bin/time -f "\n► Elapsed time: %E | CPU usage: %P | Memory usage: %M KB\n"'
-alias make-kernel-arm64='rm images/*.itb; make kernel && make dtb_for_itb && make generate_itb && cp images/*.itb /Shared/TFTP'
-alias rebuild-kernel-arm64='rm images/*.itb; make kernel-rebuild && make dtb_for_itb && make generate_itb && cp images/*.itb /Shared/TFTP'
+alias make-kernel-arm64='rm images/*.itb; make kernel && make dtb_for_itb && make generate_itb && cp images/*.itb /tftp'
+alias rebuild-kernel-arm64='rm images/*.itb; make kernel-rebuild && make dtb_for_itb && make generate_itb && cp images/*.itb /tftp'
 alias please='sudo'
 alias ag='ag --noheading'
 alias cm='chezmoi'
 alias glp='command git log --graph -p'
 alias glpo='command git log --graph -p --oneline'
 alias sysadmin='ssh -i ~/.ssh/id_vms -l sysadmin'
+alias git-clean-all='git reset --hard; git clean -fd; git submodule foreach "git reset --hard; git clean -fd"'
+alias gsu='command git submodule update --init --recursive'
+alias gshow='command git show -p --submodule=diff'
+alias ghash='command git --no-pager log -1 --pretty=format:"%C(bold)%h%C(reset) %C(#ff69b4)%H %C(#34e2e2)%s%n"'
 
 # User functions
-root() {
-	default_address="192.168.20.100"
-	case $# in
-		0) ip="${default_address}" ;;
-		1) ip="${default_address%.*}.$1" ;;
-		2) ip="${default_address%.*.*}.$1.$2" ;;
-	esac
-	echo "Connecting to SSH: root@${ip}"
-	ssh root@${ip} 
-	echo
+
+# Usage: root [IP or partial IP] [-- command]
+#
+# Connects to a specified IP address via SSH, dynamically constructing the IP
+# based on the input format. If '--' is used, the command following it will
+# be executed on the target device via SSH.
+#
+# Parameters:
+#   IP or partial IP     The IP address or partial IP to connect to.
+#                        - Full IP (e.g., "192.168.10.15")
+#                        - Partial IP (e.g., "10.15")
+#                        - Last octet (e.g., "101")
+#   -- command           Optional. Command to be executed on the target device.
+#                        If '--' is specified, the command following it is
+#                        executed on the constructed IP.
+#
+# Examples:
+#   root                 Connects to the default IP "192.168.20.100".
+#   root 101             Connects to "192.168.20.101".
+#   root 10.15           Connects to "192.10.15.100".
+#   root -- reboot       Executes "reboot" on the default IP "192.168.20.100".
+#   root 20.2.3 -- ls    Executes "ls" on "192.20.2.3".
+function root() {
+    # Default IP address
+    default_ip="192.168.20.100"
+
+    # If no arguments are provided, connect to the default IP
+    if [ $# -eq 0 ]; then
+        echo "Connecting via SSH: root@${default_ip}"
+        ssh root@${default_ip}
+        echo
+        return
+    fi
+
+    # If the first argument is '--', execute the following command on the default IP
+	if [ "$1" == "--" ]; then
+		shift
+		command="$*"
+		echo "Executing command via SSH: root@${default_ip} '$command'"
+		ssh root@${default_ip} "$command"
+		echo
+		return
+	fi
+
+    # Count the number of dots in the first argument to determine how many octets to modify
+    dot_count=$(echo "$1" | grep -o '\.' | wc -l)
+
+    # Construct the IP address based on the number of dots in the first argument
+    case $dot_count in
+        0)
+            # If there are no dots, use the argument as the last octet
+            target_ip="${default_ip%.*}.$1" ;;
+        1)
+            # If there is one dot, replace the third octet with the first argument
+            target_ip="${default_ip%.*.*}.$1" ;;
+        2)
+            # If there are two dots, replace the second and third octets with the first and second arguments
+            target_ip="${default_ip%.*}.$1.$2" ;;
+    esac
+
+    # Check if '--' is used in the arguments, indicating a command to be executed on the target IP
+    if [[ " $* " == *" -- "* ]]; then
+        # Extract the command part after '--' and execute it on the target IP
+        command=$(echo "$*" | sed 's/.*-- //')
+        echo "Executing command via SSH: root@${target_ip} '$command'"
+        ssh root@${target_ip} "$command"
+        echo
+    else
+        # If no '--' is present, just connect to the target IP
+        echo "Connecting via SSH: root@${target_ip}"
+        ssh root@${target_ip}
+        echo
+    fi
 }
 
+compare-branches() {
+    if [ "$#" -ne 2 ]; then
+        echo "Usage: compare-branches <branch1> <branch2>"
+        return 1
+    fi
+
+    local branch1=$1
+    local branch2=$2
+
+    echo "Comparing branch '$branch1' to '$branch2'..."
+    echo
+
+    diff --color=always <(git ls-tree -r "$branch1" | grep ^160000) \
+                       <(git ls-tree -r "$branch2" | grep ^160000) | diff-so-fancy
+}
