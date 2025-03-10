@@ -177,6 +177,7 @@ alias git-clean-all='git reset --hard; git clean -fd; git submodule foreach "git
 alias gsu='command git submodule update --init --recursive'
 alias gshow='command git show -p --submodule=diff'
 alias ghash='command git --no-pager log -1 --pretty=format:"%C(bold)%h%C(reset) %C(#ff69b4)%H %C(#34e2e2)%s%n"'
+alias code='code -g'
 
 # User functions
 
