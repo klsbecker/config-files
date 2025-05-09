@@ -271,3 +271,41 @@ compare-branches() {
     diff --color=always <(git ls-tree -r "$branch1" | grep ^160000) \
                        <(git ls-tree -r "$branch2" | grep ^160000) | diff-so-fancy
 }
+
+# Generate a tracking report for the specified commits or commit range
+#
+# Usage: git-tracking [<commit1> <commit2> ...] | [<commit-range>]
+#
+# If no arguments are provided, it will track the current commit.
+git-tracking() {
+    repo=$(basename -s .git "$(git config --get remote.origin.url)" | sed 's/.*\///')
+    branch=$(git rev-parse --abbrev-ref HEAD)
+
+    if [ $# -eq 0 ]; then
+        commits=($(git rev-parse HEAD))
+    else
+        commits=()
+        for arg in "$@"; do
+            if [[ $arg == *..* ]]; then
+                # If the argument contains "..", treat it as a commit range
+                commits+=($(git rev-list "$arg"))
+            else
+                # Otherwise, treat it as a single commit
+                commits+=($(git rev-parse "$arg"))
+            fi
+        done
+    fi
+
+    printf "┌────────────────────────────────────────────────────────┐\n"
+    printf "│                      Git Tracking                      │\n"
+    printf "├────────────────────────────────────────────────────────┤\n"
+    printf "│  Repository │ %-40s │\n" "$repo"
+    printf "│      Branch │ %-40s │\n" "$branch"
+    if [ ${#commits[@]} -gt 0 ]; then
+        printf "│ Commit Hash │ %-40s │\n" "${commits[0]}"
+        for commit in "${commits[@]:1}"; do
+            printf "│             │ %-40s │\n" "$commit"
+        done
+    fi
+    printf "└────────────────────────────────────────────────────────┘\n"
+}
